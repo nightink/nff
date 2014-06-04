@@ -48,10 +48,7 @@ module.exports = function(program) {
 
           for (var i = 0, len = ignores.length; i < len; i++) {
 
-            if('.' + ignores[i] === fileExt) {
-
-              return
-            }
+            if('.' + ignores[i] === fileExt) return
           }
         }
 
@@ -71,6 +68,9 @@ module.exports = function(program) {
 
     ly.lines.forEach(function(bf){
 
+      // 空文件处理
+      if(!bf) return
+
       var line = bf.toString()
       index++
 
@@ -78,8 +78,8 @@ module.exports = function(program) {
 
         if(line.indexOf(findKeyword) !== -1) {
 
-          console.log('\033[1;36m * %s:%s %s \033[0m',
-            filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
+          console.log('\033[1;36m  * \033[3;32m **%s** \033[0m %s:%s %s \033[0m ',
+            findKeyword, filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
         }
       })
     })
