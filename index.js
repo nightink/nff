@@ -3,73 +3,86 @@ var fs = require('fs')
 var path = require('path')
 
 var lazy = require('lazy')
-var commander = require('commander')
 
-commander.version(require('./package.json').version)
-  .option('-f, --find [path]', '查找文件', String)
-  .parse(process.argv)
+module.exports = function(program) {
 
-var cwdPath = process.cwd()
+  var cwdPath = process.cwd()
+  var filesPath = []
+  var ignoreFilePaths = program.ignorePath.split(',')
+  var ignores = program.ignore && program.ignore.split(',')
+  var findKeys = program.find.split(',')
 
-var filesPath = []
+  // 递归读取文件夹
+  function readDir(basePath) {
 
-// 递归读取文件夹
-function readDir(basePath) {
+    var files = fs.readdirSync(basePath)
 
-  var files = fs.readdirSync(basePath)
+    files = files.filter(function(fileP) {
 
-  files = files.filter(function(fileP) {
+      var basename = path.basename(fileP)
 
-    return fileP.indexOf('.svn') === -1
-  })
+      for(var i = 0, len = ignoreFilePaths.length; i < len; i++) {
 
-  files.forEach(function(filename) {
+        if(basename === ignoreFilePaths[i]) {
 
-    var filePath = path.join(basePath, filename)
+          return false
+        }
+      }
 
-    var stat = fs.statSync(filePath)
+      return true
+    })
 
-    if(stat.isDirectory()) {
+    files.forEach(function(filename) {
 
-      readDir(filePath)
-    } else {
+      var filePath = path.join(basePath, filename)
+      var stat = fs.statSync(filePath)
 
-      filesPath.push(filePath)
-    }
-  })
-}
+      if(stat.isDirectory()) {
 
-readDir(cwdPath)
+        readDir(filePath)
+      } else {
 
-console.log('\n\n========== node.js find {%s} list ==========\n\n', commander.find)
+        var fileExt = path.extname(filename)
 
-var findKeys = commander.find.split('_')
+        if(ignores) {
 
-console.log(findKeys)
+          for (var i = 0, len = ignores.length; i < len; i++) {
 
-filesPath.forEach(function(filePath) {
+            if('.' + ignores[i] === fileExt) {
 
-  if(path.extname(filePath) === '.java') {
+              return
+            }
+          }
+        }
 
-    return
+        filesPath.push(filePath)
+      }
+    })
   }
 
-  var ly = new lazy(fs.createReadStream(filePath))
+  readDir(cwdPath)
 
-  var index = 0
+  console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys)
 
-  ly.lines.forEach(function(bf){
+  filesPath.forEach(function(filePath) {
 
-    var line = bf.toString()
-    index++
+    var ly = new lazy(fs.createReadStream(filePath))
+    var index = 0
 
-    findKeys.forEach(function(findKeyword) {
+    ly.lines.forEach(function(bf){
 
-      if(line.indexOf(findKeyword) !== -1) {
+      var line = bf.toString()
+      index++
 
-        console.log('\033[1;36m * %s:%s %s \033[0m', filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
-      }
+      findKeys.forEach(function(findKeyword) {
+
+        if(line.indexOf(findKeyword) !== -1) {
+
+          console.log('\033[1;36m * %s:%s %s \033[0m',
+            filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
+        }
+      })
     })
   })
 
-})
+}

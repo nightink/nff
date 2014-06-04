@@ -1,9 +1,24 @@
 {
-  "name": "node-find",
-  "version": "0.0.1",
-  "main": "index.js",
-  "bin": "./bin/find-file",
+  "name": "nff",
+  "version": "0.1.0",
   "description": "node.js find file tools",
+  "keywords": [
+    "node.js",
+    "find",
+    "file"
+  ],
+  "main": "index.js",
+  "bin": "./bin/nff",
+  "author": "Nightink<chceyes@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bluefatty/node-nff"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bluefatty/node-nff/issues"
+  },
+  "homepage": "https://github.com/Bluefatty/node-nff",
   "dependencies": {
     "lazy": "*",
     "commander": "*"
