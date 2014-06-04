@@ -1,0 +1,11 @@
+{
+  "name": "node-find",
+  "version": "0.0.1",
+  "main": "index.js",
+  "bin": "./bin/find-file",
+  "description": "node.js find file tools",
+  "dependencies": {
+    "lazy": "*",
+    "commander": "*"
+  }
+}
