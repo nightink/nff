@@ -1,4 +1,4 @@
-node-find
+node-nff
 =========
 
 node.js cli find file
