@@ -1,6 +1,7 @@
 
 var fs = require('fs')
 var path = require('path')
+var util = require('util')
 
 var Lazy = require('lazy')
 
@@ -59,6 +60,13 @@ module.exports = function(program) {
 
   readDir(cwdPath)
 
+  var findWords = {}
+
+  findKeys.forEach(function(findKeyword) {
+
+    findWords[findKeyword] = []
+  })
+
   console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys)
 
   function flowStream(filePath) {
@@ -78,18 +86,35 @@ module.exports = function(program) {
 
         if(line.indexOf(findKeyword) !== -1) {
 
-          console.log('\033[1;36m  * \033[3;32m **%s** \033[0m \033[3;33m%s:%s\033[0m %s \033[0m ',
-            findKeyword, filePath.substr(cwdPath.length + 1), index, line.replace(/^\s+/,""))
+          var formatStr = util.format('\033[1;36m  * \033[3;33m%s:%s\033[0m %s \033[0m',
+              filePath.substr(cwdPath.length + 1), index, line.replace(/^\s+/,""))
+
+          findWords[findKeyword].push(formatStr)
         }
       })
     }).join(function() {
 
       if(!filesPath.length) {
 
-        return console.log('\n')
+        for(var findKey in findWords) {
+
+          var findWord = findWords[findKey]
+          if(!findWord || findWord.length === 0) return
+
+          console.log('\033[3;32m **%s** \033[0m\n', findKey)
+
+          findWord.forEach(function(fdWord) {
+
+            console.log(fdWord)
+          })
+
+          console.log('\n')
+        }
+      } else {
+
+        flowStream(filesPath.pop())
       }
 
-      flowStream(filesPath.pop())
     })
   }
 
