@@ -78,15 +78,15 @@ module.exports = function(program) {
 
         if(line.indexOf(findKeyword) !== -1) {
 
-          console.log('\033[1;36m  * \033[3;32m **%s** \033[0m %s:%s %s \033[0m ',
-            findKeyword, filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
+          console.log('\033[1;36m  * \033[3;32m **%s** \033[0m \033[3;33m%s:%s\033[0m %s \033[0m ',
+            findKeyword, filePath.substr(cwdPath.length + 1), index, line.replace(/^\s+/,""))
         }
       })
     }).join(function() {
 
       if(!filesPath.length) {
 
-        return console.log('\n\n')
+        return console.log('\n')
       }
 
       flowStream(filesPath.pop())

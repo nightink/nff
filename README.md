@@ -21,3 +21,18 @@ node.js find file cli
     -p, --ignorePath [ignore file path]  ignore file path(Default: .svn, .git, Examples: $ nff -p .git,bin)
 
 ```
+
+### Examples
+
+```shell
+
+$ nff -p node_modules,.git -f Lazy
+
+
+========== node.js find {Lazy} list ==========
+
+
+  *  **Lazy**  index.js:4 var Lazy = require('lazy')
+  *  **Lazy**  index.js:65 var ly = new Lazy(fs.createReadStream(filePath))
+
+```

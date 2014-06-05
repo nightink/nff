@@ -1,6 +1,6 @@
 {
   "name": "nff",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "node.js find file cli",
   "keywords": [
     "node.js",
