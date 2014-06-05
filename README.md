@@ -1,7 +1,7 @@
 node-nff
 =========
 
-node.js cli find file
+node.js find file cli
 
 
 ### Use

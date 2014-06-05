@@ -2,7 +2,7 @@
 var fs = require('fs')
 var path = require('path')
 
-var lazy = require('lazy')
+var Lazy = require('lazy')
 
 module.exports = function(program) {
 
@@ -61,12 +61,12 @@ module.exports = function(program) {
 
   console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys)
 
-  filesPath.forEach(function(filePath) {
+  function flowStream(filePath) {
 
-    var ly = new lazy(fs.createReadStream(filePath))
+    var ly = new Lazy(fs.createReadStream(filePath))
     var index = 0
 
-    ly.lines.forEach(function(bf){
+    ly.lines.forEach(function(bf) {
 
       // 空文件处理
       if(!bf) return
@@ -82,7 +82,17 @@ module.exports = function(program) {
             findKeyword, filePath.substr(cwdPath.length), index, line.replace(/^\s+/,""))
         }
       })
+    }).join(function() {
+
+      if(!filesPath.length) {
+
+        return console.log('\n\n')
+      }
+
+      flowStream(filesPath.pop())
     })
-  })
+  }
+
+  flowStream(filesPath.pop())
 
 }
