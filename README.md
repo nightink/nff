@@ -1,8 +1,11 @@
 node-nff
 =========
 
-node.js find file cli
+[![NPM version](http://img.shields.io/npm/v/nff.svg?style=flat)](https://www.npmjs.org/package/nff)
 
+[![NPM](https://nodei.co/npm/nff.png?downloads=true)](https://nodei.co/npm/nff/)
+
+node.js find file cli
 
 ### Use
 
