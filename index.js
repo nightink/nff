@@ -1,10 +1,10 @@
+'use strict';
 
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
 
 var Lazy = require('lazy');
-var iconv = require('iconv-lite');
 
 module.exports = function(program) {
   var cwdPath = process.cwd();
@@ -68,7 +68,7 @@ module.exports = function(program) {
 
   console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys);
 
-  function flowStream(filePath) {
+  (function flowStream(filePath) {
     var ly = new Lazy(fs.createReadStream(filePath));
     var index = 0;
     ly.lines.forEach(function(bf) {
@@ -83,7 +83,6 @@ module.exports = function(program) {
       findKeys.forEach(function(findKeyword) {
 
         if(line.indexOf(findKeyword) !== -1) {
-
           var formatStr = util.format('\033[1;36m  * \033[3;33m%s:%s\033[0m %s \033[0m',
               filePath.substr(cwdPath.length + 1), index, line.replace(/^\s+/,""));
 
@@ -95,9 +94,8 @@ module.exports = function(program) {
 
         for(var findKey in findWords) {
           var findWord = findWords[findKey];
-          if(!findWord || findWord.length === 0) {
-            return;
-          }
+          if(!findWord || findWord.length === 0) { return; }
+
           console.log('\033[3;32m **%s** \033[0m\n', findKey);
           findWord.forEach(function(fdWord) {
             console.log(fdWord);
@@ -108,7 +106,5 @@ module.exports = function(program) {
         flowStream(filesPath.pop());
       }
     });
-  }
-
-  flowStream(filesPath.pop());
+  })(filesPath.pop());
 };

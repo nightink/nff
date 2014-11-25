@@ -1,7 +1,7 @@
 node-nff
 =========
 
-[![NPM version](http://img.shields.io/npm/v/nff.svg?style=flat)](https://www.npmjs.org/package/nff)
+[![NPM version](https://img.shields.io/npm/v/nff.svg?style=flat)](https://www.npmjs.org/package/nff)
 
 [![NPM](https://nodei.co/npm/nff.png?downloads=true)](https://nodei.co/npm/nff/)
 
