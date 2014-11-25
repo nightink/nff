@@ -1,6 +1,6 @@
 {
   "name": "nff",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "node.js find file cli",
   "keywords": [
     "node.js",
@@ -9,16 +9,16 @@
   ],
   "main": "index.js",
   "bin": "./bin/nff",
-  "author": "Nightink<chceyes@gmail.com>",
+  "author": "nightink<chceyes@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Bluefatty/node-nff"
+    "url": "https://github.com/nightink/node-nff"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Bluefatty/node-nff/issues"
+    "url": "https://github.com/nightink/node-nff/issues"
   },
-  "homepage": "https://github.com/Bluefatty/node-nff",
+  "homepage": "https://github.com/nightink/node-nff",
   "dependencies": {
     "lazy": "*",
     "commander": "*",
