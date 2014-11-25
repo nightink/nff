@@ -4,13 +4,13 @@ var program = require('commander');
 
 program.version(require('../package.json').version)
   .option('-f, --find [find file]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
+  .option('-w, --where [where path]', 'where path(Examples: $ nff -w java,xml)', String)
   .option('-i, --ignore [ignore file]', 'ignore file(Examples: $ nff -i java,xml)', String)
   .option('-p, --ignorePath [ignore file path]',
     'ignore file path(Default: .svn, .git, Examples: $ nff -p .git,bin)', String, '.svn,.git')
   .parse(process.argv);
 
 if(!program.find) {
-
     return console.log('\033[1;31m -f | --find is null \033[0m');
 }
 
