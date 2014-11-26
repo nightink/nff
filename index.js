@@ -1,8 +1,8 @@
-'use strict';
+// 'use strict';
 
 var fs = require('fs');
 var path = require('path');
-var util = require('util');
+var format = require('util').format;
 
 var Lazy = require('lazy');
 
@@ -60,7 +60,6 @@ module.exports = function(program) {
     readDir(cwdPath);
   }
 
-
   var findWords = {};
   findKeys.forEach(function(findKeyword) {
     findWords[findKeyword] = [];
@@ -73,18 +72,17 @@ module.exports = function(program) {
     var index = 0;
     ly.lines.forEach(function(bf) {
       // 空文件处理
-      if(!bf) {
-        return;
-      }
+      if(!bf) { return; }
 
       var line = bf.toString();
       index++;
 
       findKeys.forEach(function(findKeyword) {
-
         if(line.indexOf(findKeyword) !== -1) {
-          var formatStr = util.format('\033[1;36m  * \033[3;33m%s:%s\033[0m %s \033[0m',
-              filePath.substr(cwdPath.length + 1), index, line.replace(/^\s+/,""));
+
+          var formatStr = '  * '.tsing +
+                format('%s:%s', filePath.substr(cwdPath.length + 1), index).yellow +
+                ' ' + line.replace(/^\s+/, '');
 
           findWords[findKeyword].push(formatStr);
         }
@@ -96,10 +94,8 @@ module.exports = function(program) {
           var findWord = findWords[findKey];
           if(!findWord || findWord.length === 0) { return; }
 
-          console.log('\033[3;32m **%s** \033[0m\n', findKey);
-          findWord.forEach(function(fdWord) {
-            console.log(fdWord);
-          });
+          console.log(format(' **%s** ', findKey).green);
+          console.log(findWord.join('\n'));
           console.log('\n');
         }
       } else {
@@ -108,3 +104,36 @@ module.exports = function(program) {
     });
   })(filesPath.pop());
 };
+
+// set color string to strout
+(function() {
+  var colorTable = {
+    red: 1,
+    gray: 0,
+    tsing: 6,
+    yellow: 3,
+    green: 2,
+    blue: 4,
+    purple: 5
+  };
+
+  function setColor(cr) {
+    Object.defineProperty(Object.prototype, cr, {
+      set: function() {},
+      get: function() {
+        return isString(this) ?
+                ('\u001b[9' + colorTable[cr] + 'm'+ this.valueOf() +'\u001b[0m')
+                : this;
+      },
+      configurable: true
+    });
+  }
+
+  for(var c in colorTable) {
+    setColor(c);
+  }
+})();
+
+function isString(str) {
+  return Object.prototype.toString.call(str) === '[object String]';
+}
