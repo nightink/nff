@@ -12,7 +12,7 @@ module.exports = function(program) {
   var ignoreFilePaths = program.ignorePath.split(',');
   var ignores = program.ignore && program.ignore.split(',');
   var findKeys = program.find.split(',');
-  var wherePaths = program.where.split(',');
+  var wherePaths = program.where && program.where.split(',');
 
   // 递归读取文件夹
   function readDir(basePath) {
@@ -51,7 +51,7 @@ module.exports = function(program) {
     });
   }
 
-  if(!!wherePaths.length) {
+  if(!!wherePaths) {
     // 遍历获取路径下文件
     wherePaths.forEach(function(wherePath) {
       readDir(path.join(cwdPath, wherePath));
@@ -80,11 +80,9 @@ module.exports = function(program) {
       findKeys.forEach(function(findKeyword) {
         if(line.indexOf(findKeyword) !== -1) {
 
-          var formatStr = '  * '.tsing +
+          findWords[findKeyword].push('  * '.tsing +
                 format('%s:%s', filePath.substr(cwdPath.length + 1), index).yellow +
-                ' ' + line.replace(/^\s+/, '');
-
-          findWords[findKeyword].push(formatStr);
+                ' ' + line.replace(/^\s+/, ''));
         }
       });
     }).join(function() {
@@ -95,8 +93,7 @@ module.exports = function(program) {
           if(!findWord || findWord.length === 0) { return; }
 
           console.log(format(' **%s** ', findKey).green);
-          console.log(findWord.join('\n'));
-          console.log('\n');
+          console.log(findWord.join('\n') + '\n\n');
         }
       } else {
         flowStream(filesPath.pop());
