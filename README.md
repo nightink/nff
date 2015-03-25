@@ -7,6 +7,8 @@ node-nff
 
 node.js find file cli
 
+支持中文编码搜索
+
 ### Use
 
 ```shell

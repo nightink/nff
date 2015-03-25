@@ -5,6 +5,8 @@ var path = require('path');
 var format = require('util').format;
 
 var Lazy = require('lazy');
+var chardet = require('chardet');
+var iconv = require('iconv-lite');
 
 module.exports = function(program) {
   var cwdPath = process.cwd();
@@ -68,13 +70,14 @@ module.exports = function(program) {
   console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys);
 
   (function flowStream(filePath) {
+    var encoding = chardet.detectFileSync(filePath);
     var ly = new Lazy(fs.createReadStream(filePath));
     var index = 0;
     ly.lines.forEach(function(bf) {
       // 空文件处理
       if(!bf) { return; }
 
-      var line = bf.toString();
+      var line = iconv.decode(bf, encoding);
       index++;
 
       findKeys.forEach(function(findKeyword) {
