@@ -3,11 +3,10 @@
 var program = require('commander');
 
 program.version(require('../package.json').version)
-  .option('-f, --find [find file]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
-  .option('-w, --where [where path]', 'where path(Examples: $ nff -w java,xml)', String)
-  .option('-i, --ignore [ignore file]', 'ignore file(Examples: $ nff -i java,xml)', String)
-  .option('-p, --ignorePath [ignore file path]',
-    'ignore file path(Default: .svn, .git, Examples: $ nff -p .git,bin)', String, '.svn,.git')
+  .option('-f, --find [s]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
+  .option('-w, --where [s]', 'where path(Examples: $ nff -w java,xml)', String)
+  .option('-i, --ignore [s]', 'ignore file(Examples: $ nff -i java,xml)', String)
+  .option('-g, --ignorePath [s]', 'ignore file path(Default: .svn, .git, Examples: $ nff -g .git,bin)', String, '.svn,.git')
   .parse(process.argv);
 
 if(!program.find) {
@@ -15,4 +14,11 @@ if(!program.find) {
   process.exit(1);
 }
 
-require('..')(program);
+var options = {
+  ignoreFilePaths: program.ignorePath.split(','),
+  ignores: program.ignore && program.ignore.split(','),
+  findKeys: program.find.split(','),
+  wherePaths: program.where && program.where.split(',')
+};
+
+require('..')(options);

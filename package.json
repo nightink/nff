@@ -1,6 +1,6 @@
 {
   "name": "nff",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "node.js find file cli",
   "keywords": [
     "node.js",
@@ -21,8 +21,9 @@
   "homepage": "https://github.com/nightink/node-nff",
   "dependencies": {
     "chardet": "0.0.8",
-    "commander": "*",
+    "commander": "^2.7.1",
+    "debug": "^2.1.3",
     "iconv-lite": "^0.4.7",
-    "lazy": "*"
+    "lazy": "^1.0.11"
   }
 }
