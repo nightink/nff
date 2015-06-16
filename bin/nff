@@ -36,6 +36,7 @@ function isString(str) {
 
 var format = require('util').format;
 var program = require('commander');
+var debug = require('debug')('nff:bin');
 
 program.version(require('../package.json').version)
   .option('-f, --find [s]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
@@ -60,7 +61,14 @@ var options = {
 console.log('\n\n========== node.js find {%s} list ==========\n\n', options.findKeys);
 
 require('..')(options, function(err, findWords) {
-  for(var findKey in findWords) {
+  var findKeys = Object.keys(findWords);
+
+  debug(findKeys);
+  if(!findKeys || findKeys.length === 0) {
+    return;
+  }
+
+  findKeys.forEach(function(findKey) {
     var findWord = findWords[findKey];
     if(!findWord || findWord.length === 0) { return; }
 
@@ -72,5 +80,5 @@ require('..')(options, function(err, findWords) {
     });
 
     console.log('\n');
-  }
+  });
 });
