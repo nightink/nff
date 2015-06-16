@@ -1,6 +1,6 @@
 {
   "name": "nff",
-  "version": "0.7.0",
+  "version": "0.7.0-beta.1",
   "description": "node.js find file cli",
   "keywords": [
     "node.js",
@@ -9,7 +9,7 @@
   ],
   "main": "index.js",
   "bin": "./bin/nff",
-  "author": "nightink<chceyes@gmail.com>",
+  "author": "nightink<ink.chc@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/nightink/node-nff"
@@ -25,5 +25,13 @@
     "debug": "^2.1.3",
     "iconv-lite": "^0.4.7",
     "lazy": "^1.0.11"
+  },
+  "devDependencies": {
+    "coffee": "~1.0.1",
+    "mocha": "~2.2.5",
+    "should": "~6.0.3"
+  },
+  "scripts": {
+    "test": "mocha --require should --reporter spec --timeout 20000 test"
   }
 }

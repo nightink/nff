@@ -1,5 +1,40 @@
 #!/usr/bin/env node
 
+// set color string to strout
+(function() {
+  var colorTable = {
+    red: 1,
+    gray: 0,
+    tsing: 6,
+    yellow: 3,
+    green: 2,
+    blue: 4,
+    purple: 5
+  };
+
+  function setColor(cr) {
+    Object.defineProperty(Object.prototype, cr, {
+      set: function() {},
+      get: function() {
+        return isString(this) ?
+                ('\u001b[9' + colorTable[cr] + 'm'+ this.valueOf() +'\u001b[0m')
+                : this;
+      },
+      configurable: true
+    });
+  }
+
+  for(var c in colorTable) {
+    setColor(c);
+  }
+})();
+// end
+
+function isString(str) {
+  return Object.prototype.toString.call(str) === '[object String]';
+}
+
+var format = require('util').format;
 var program = require('commander');
 
 program.version(require('../package.json').version)
@@ -18,7 +53,24 @@ var options = {
   ignoreFilePaths: program.ignorePath.split(','),
   ignores: program.ignore && program.ignore.split(','),
   findKeys: program.find.split(','),
-  wherePaths: program.where && program.where.split(',')
+  wherePaths: program.where && program.where.split(','),
+  cwdPath: process.cwd()
 };
 
-require('..')(options);
+console.log('\n\n========== node.js find {%s} list ==========\n\n', options.findKeys);
+
+require('..')(options, function(err, findWords) {
+  for(var findKey in findWords) {
+    var findWord = findWords[findKey];
+    if(!findWord || findWord.length === 0) { return; }
+
+    console.log(format(' **%s** ', findKey).green);
+
+    findWord.forEach(function(data) {
+      console.log('  * '.tsing + format('%s:%s', data.path, data.index).yellow +
+        ' ' + data.line.replace(/^\s+/, ''));
+    });
+
+    console.log('\n');
+  }
+});

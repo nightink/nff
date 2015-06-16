@@ -2,15 +2,14 @@
 
 var fs = require('fs');
 var path = require('path');
-var format = require('util').format;
 
 var Lazy = require('lazy');
 var chardet = require('chardet');
 var iconv = require('iconv-lite');
 var debug = require('debug')('nff');
 
-module.exports = function(options) {
-  var cwdPath = process.cwd();
+module.exports = function(options, cb) {
+  var cwdPath = options.cwdPath;
   var filesPath = [];
 
   // 递归读取文件夹 收集需要进行搜索的文件路径
@@ -65,8 +64,6 @@ module.exports = function(options) {
     findWords[findKeyword] = [];
   });
 
-  console.log('\n\n========== node.js find {%s} list ==========\n\n', options.findKeys);
-
   // 遍历搜索文件 进行模糊匹配
   (function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
@@ -85,61 +82,21 @@ module.exports = function(options) {
       }
 
       index++;
-
       options.findKeys.forEach(function(findKeyword) {
         if(line.indexOf(findKeyword) !== -1) {
-
-          findWords[findKeyword].push('  * '.tsing +
-                format('%s:%s', filePath.substr(cwdPath.length + 1), index).yellow +
-                ' ' + line.replace(/^\s+/, ''));
+          findWords[findKeyword].push({
+            path: filePath.substr(cwdPath.length + 1),
+            index: index,
+            line: line
+          });
         }
       });
     }).join(function() {
       if(!filesPath.length) {
-
-        for(var findKey in findWords) {
-          var findWord = findWords[findKey];
-          if(!findWord || findWord.length === 0) { return; }
-
-          console.log(format(' **%s** ', findKey).green);
-          console.log(findWord.join('\n') + '\n\n');
-        }
+        cb(null, findWords);
       } else {
         flowStream(filesPath.pop());
       }
     });
   })(filesPath.pop());
 };
-
-// set color string to strout
-(function() {
-  var colorTable = {
-    red: 1,
-    gray: 0,
-    tsing: 6,
-    yellow: 3,
-    green: 2,
-    blue: 4,
-    purple: 5
-  };
-
-  function setColor(cr) {
-    Object.defineProperty(Object.prototype, cr, {
-      set: function() {},
-      get: function() {
-        return isString(this) ?
-                ('\u001b[9' + colorTable[cr] + 'm'+ this.valueOf() +'\u001b[0m')
-                : this;
-      },
-      configurable: true
-    });
-  }
-
-  for(var c in colorTable) {
-    setColor(c);
-  }
-})();
-
-function isString(str) {
-  return Object.prototype.toString.call(str) === '[object String]';
-}
