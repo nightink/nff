@@ -54,7 +54,7 @@ var options = {
   ignoreFilePaths: program.ignorePath.split(','),
   ignores: program.ignore && program.ignore.split(','),
   findKeys: program.find.split(','),
-  wherePaths: program.where && program.where.split(','),
+  wherePaths: program.where ? program.where.split(',') : [process.cwd()],
   cwdPath: process.cwd()
 };
 

@@ -24,7 +24,9 @@
     "commander": "^2.7.1",
     "debug": "^2.1.3",
     "iconv-lite": "^0.4.7",
-    "lazy": "^1.0.11"
+    "lazy": "^1.0.11",
+    "walk": "^2.3.9",
+    "walker": "^1.0.7"
   },
   "devDependencies": {
     "coffee": "~1.0.1",
