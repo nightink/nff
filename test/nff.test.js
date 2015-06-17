@@ -45,6 +45,7 @@ describe('nff', function() {
       data.should.have.property('header').with.lengthOf(2);
       done();
     });
+  });
 
   it('fixed issue#3', function(done) {
     nff({
