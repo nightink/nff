@@ -2,10 +2,10 @@ node-nff
 =========
 
 [![NPM version](https://img.shields.io/npm/v/nff.svg?style=flat)](https://www.npmjs.org/package/nff)
+[![Build Status](https://api.travis-ci.org/nightink/nff.png)](http://travis-ci.org/nightink/nff)
 
 [![NPM](https://nodei.co/npm/nff.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/nff/)
 [![NPM](https://nodei.co/npm-dl/nff.png)](https://nodei.co/npm/nff/)
-[![Build Status](https://api.travis-ci.org/nightink/nff.png)](http://travis-ci.org/nightink/nff)
 
 node.js find file cli
 
