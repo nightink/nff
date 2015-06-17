@@ -1,13 +1,48 @@
 #!/usr/bin/env node
 
+// set color string to strout
+(function() {
+  var colorTable = {
+    red: 1,
+    gray: 0,
+    tsing: 6,
+    yellow: 3,
+    green: 2,
+    blue: 4,
+    purple: 5
+  };
+
+  function setColor(cr) {
+    Object.defineProperty(Object.prototype, cr, {
+      set: function() {},
+      get: function() {
+        return isString(this) ?
+                ('\u001b[9' + colorTable[cr] + 'm'+ this.valueOf() +'\u001b[0m')
+                : this;
+      },
+      configurable: true
+    });
+  }
+
+  for(var c in colorTable) {
+    setColor(c);
+  }
+})();
+// end
+
+function isString(str) {
+  return Object.prototype.toString.call(str) === '[object String]';
+}
+
+var format = require('util').format;
 var program = require('commander');
+var debug = require('debug')('nff:bin');
 
 program.version(require('../package.json').version)
-  .option('-f, --find [find file]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
-  .option('-w, --where [where path]', 'where path(Examples: $ nff -w java,xml)', String)
-  .option('-i, --ignore [ignore file]', 'ignore file(Examples: $ nff -i java,xml)', String)
-  .option('-p, --ignorePath [ignore file path]',
-    'ignore file path(Default: .svn, .git, Examples: $ nff -p .git,bin)', String, '.svn,.git')
+  .option('-f, --find [s]', 'find file(Examples: $ nff -f findKeyword1,findKeyword2)', String)
+  .option('-w, --where [s]', 'where path(Examples: $ nff -w java,xml)', String)
+  .option('-i, --ignore [s]', 'ignore file(Examples: $ nff -i java,xml)', String)
+  .option('-g, --ignorePath [s]', 'ignore file path(Default: .svn, .git, Examples: $ nff -g .git,bin)', String, '.svn,.git')
   .parse(process.argv);
 
 if(!program.find) {
@@ -15,4 +50,35 @@ if(!program.find) {
   process.exit(1);
 }
 
-require('..')(program);
+var options = {
+  ignoreFilePaths: program.ignorePath.split(','),
+  ignores: program.ignore && program.ignore.split(','),
+  findKeys: program.find.split(','),
+  wherePaths: program.where && program.where.split(','),
+  cwdPath: process.cwd()
+};
+
+console.log('\n\n========== node.js find {%s} list ==========\n\n', options.findKeys);
+
+require('..')(options, function(err, findWords) {
+  var findKeys = Object.keys(findWords);
+
+  debug(findKeys);
+  if(!findKeys || findKeys.length === 0) {
+    return;
+  }
+
+  findKeys.forEach(function(findKey) {
+    var findWord = findWords[findKey];
+    if(!findWord || findWord.length === 0) { return; }
+
+    console.log(format(' **%s** ', findKey).green);
+
+    findWord.forEach(function(data) {
+      console.log('  * '.tsing + format('%s:%s', data.path, data.index).yellow +
+        ' ' + data.line.replace(/^\s+/, ''));
+    });
+
+    console.log('\n');
+  });
+});

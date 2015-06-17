@@ -1,29 +1,25 @@
-// 'use strict';
+'use strict';
 
 var fs = require('fs');
 var path = require('path');
-var format = require('util').format;
 
 var Lazy = require('lazy');
 var chardet = require('chardet');
 var iconv = require('iconv-lite');
+var debug = require('debug')('nff');
 
-module.exports = function(program) {
-  var cwdPath = process.cwd();
+module.exports = function(options, cb) {
+  var cwdPath = options.cwdPath;
   var filesPath = [];
-  var ignoreFilePaths = program.ignorePath.split(',');
-  var ignores = program.ignore && program.ignore.split(',');
-  var findKeys = program.find.split(',');
-  var wherePaths = program.where && program.where.split(',');
 
-  // 递归读取文件夹
+  // 递归读取文件夹 收集需要进行搜索的文件路径
   function readDir(basePath) {
     var files = fs.readdirSync(basePath);
     files = files.filter(function(fileP) {
       var basename = path.basename(fileP);
 
-      for(var i = 0, len = ignoreFilePaths.length; i < len; i++) {
-        if(basename === ignoreFilePaths[i]) {
+      for(var i = 0, len = options.ignoreFilePaths.length; i < len; i++) {
+        if(basename === options.ignoreFilePaths[i]) {
           return false;
         }
       }
@@ -40,9 +36,9 @@ module.exports = function(program) {
       } else {
         var fileExt = path.extname(filename);
 
-        if(ignores) {
-          for (var i = 0, len = ignores.length; i < len; i++) {
-            if('.' + ignores[i] === fileExt) {
+        if(options.ignores) {
+          for (var i = 0, len = options.ignores.length; i < len; i++) {
+            if('.' + options.ignores[i] === fileExt) {
               return;
             }
           }
@@ -53,9 +49,10 @@ module.exports = function(program) {
     });
   }
 
-  if(!!wherePaths) {
+  // 判断用户是否有指定路径搜索
+  if(!!options.wherePaths) {
     // 遍历获取路径下文件
-    wherePaths.forEach(function(wherePath) {
+    options.wherePaths.forEach(function(wherePath) {
       readDir(path.join(cwdPath, wherePath));
     });
   } else {
@@ -63,12 +60,11 @@ module.exports = function(program) {
   }
 
   var findWords = {};
-  findKeys.forEach(function(findKeyword) {
+  options.findKeys.forEach(function(findKeyword) {
     findWords[findKeyword] = [];
   });
 
-  console.log('\n\n========== node.js find {%s} list ==========\n\n', findKeys);
-
+  // 遍历搜索文件 进行模糊匹配
   (function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
     var ly = new Lazy(fs.createReadStream(filePath));
@@ -77,63 +73,30 @@ module.exports = function(program) {
       // 空文件处理
       if(!bf) { return; }
 
-      var line = iconv.decode(bf, encoding);
+      debug('file path %s, encoding %s', filePath, encoding);
+      var line;
+      if(encoding === 'UTF-32LE') {
+        line = bf.toString();
+      } else {
+        line = iconv.decode(bf, encoding);
+      }
+
       index++;
-
-      findKeys.forEach(function(findKeyword) {
+      options.findKeys.forEach(function(findKeyword) {
         if(line.indexOf(findKeyword) !== -1) {
-
-          findWords[findKeyword].push('  * '.tsing +
-                format('%s:%s', filePath.substr(cwdPath.length + 1), index).yellow +
-                ' ' + line.replace(/^\s+/, ''));
+          findWords[findKeyword].push({
+            path: filePath.substr(cwdPath.length + 1),
+            index: index,
+            line: line
+          });
         }
       });
     }).join(function() {
       if(!filesPath.length) {
-
-        for(var findKey in findWords) {
-          var findWord = findWords[findKey];
-          if(!findWord || findWord.length === 0) { return; }
-
-          console.log(format(' **%s** ', findKey).green);
-          console.log(findWord.join('\n') + '\n\n');
-        }
+        cb(null, findWords);
       } else {
         flowStream(filesPath.pop());
       }
     });
   })(filesPath.pop());
 };
-
-// set color string to strout
-(function() {
-  var colorTable = {
-    red: 1,
-    gray: 0,
-    tsing: 6,
-    yellow: 3,
-    green: 2,
-    blue: 4,
-    purple: 5
-  };
-
-  function setColor(cr) {
-    Object.defineProperty(Object.prototype, cr, {
-      set: function() {},
-      get: function() {
-        return isString(this) ?
-                ('\u001b[9' + colorTable[cr] + 'm'+ this.valueOf() +'\u001b[0m')
-                : this;
-      },
-      configurable: true
-    });
-  }
-
-  for(var c in colorTable) {
-    setColor(c);
-  }
-})();
-
-function isString(str) {
-  return Object.prototype.toString.call(str) === '[object String]';
-}
