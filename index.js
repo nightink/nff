@@ -52,6 +52,7 @@ module.exports = function(options, cb) {
     });
   });
 
+  var errorMap = [];
   // 遍历搜索文件 进行模糊匹配
   function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
@@ -65,23 +66,26 @@ module.exports = function(options, cb) {
       }
 
       debug('file path %s, encoding %s', filePath, encoding);
-      var line;
-      if('UTF-32LE' === encoding) {
-        line = bf.toString();
-      } else {
-        line = iconv.decode(bf, encoding);
-      }
 
       index++;
-      options.findKeys.forEach(function(findKeyword) {
-        if(line.indexOf(findKeyword) !== -1) {
-          findWords[findKeyword].push({
-            path: filePath.substr(cwdPath.length + 1),
-            index: index,
-            line: line
-          });
-        }
-      });
+      try {
+        var line = iconv.decode(bf, encoding);
+        options.findKeys.forEach(function(findKeyword) {
+          if(line.indexOf(findKeyword) !== -1) {
+            findWords[findKeyword].push({
+              path: filePath.substr(cwdPath.length + 1),
+              index: index,
+              line: line
+            });
+          }
+        });
+      } catch(e) {
+        errorMap.push({
+          path: filePath.substr(cwdPath.length + 1),
+          index: index,
+          error: e
+        });
+      }
     }).join(function() {
       fileCount--;
       if(!fileCount) {
