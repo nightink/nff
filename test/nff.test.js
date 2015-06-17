@@ -6,7 +6,8 @@ describe('nff', function() {
   it('cli output result', function(done) {
     var coffee = require('coffee');
     coffee.spawn(cwd + '/bin/nff', ['-f', 'http'], { cwd: cwd + '/test/fixtures' })
-      .expect('stdout', /http|\:0/)
+      .expect('stdout', /http/)
+      .expect('stdout', /index.js\:3/)
       .expect('code', 0)
       .end(done);
   });
