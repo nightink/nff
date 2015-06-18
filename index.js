@@ -6,76 +6,71 @@ var path = require('path');
 var Lazy = require('lazy');
 var chardet = require('chardet');
 var iconv = require('iconv-lite');
+var walk = require('walk');
 var debug = require('debug')('nff');
 
 module.exports = function(options, cb) {
-  var cwdPath = options.cwdPath;
-  var filesPath = [];
+  var cwdPath = options.cwdPath,
+    findWords = {},
+    fileCount = 0;
 
-  // 递归读取文件夹 收集需要进行搜索的文件路径
-  function readDir(basePath) {
-    var files = fs.readdirSync(basePath);
-    files = files.filter(function(fileP) {
-      var basename = path.basename(fileP);
-
-      for(var i = 0, len = options.ignoreFilePaths.length; i < len; i++) {
-        if(basename === options.ignoreFilePaths[i]) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    files.forEach(function(filename) {
-      var filePath = path.join(basePath, filename);
-      var stat = fs.statSync(filePath);
-
-      if(stat.isDirectory()) {
-        readDir(filePath);
-      } else {
-        var fileExt = path.extname(filename);
-
-        if(options.ignores) {
-          for (var i = 0, len = options.ignores.length; i < len; i++) {
-            if('.' + options.ignores[i] === fileExt) {
-              return;
-            }
-          }
-        }
-
-        filesPath.push(filePath);
-      }
-    });
+  // 搜索目录默认为当前目录
+  if(!options.wherePaths) {
+    options.wherePaths = [cwdPath];
   }
-
-  // 判断用户是否有指定路径搜索
-  if(!!options.wherePaths) {
-    // 遍历获取路径下文件
-    options.wherePaths.forEach(function(wherePath) {
-      readDir(path.join(cwdPath, wherePath));
-    });
-  } else {
-    readDir(cwdPath);
+  if(!options.ignores) {
+    options.ignores = [];
   }
-
-  var findWords = {};
   options.findKeys.forEach(function(findKeyword) {
     findWords[findKeyword] = [];
   });
 
+  // 遍历所有需要的目录，获取文件名
+  options.wherePaths.forEach(function(wherePath) {
+    walk.walkSync(path.resolve(cwdPath, wherePath), {
+      followLinks: false,
+      filters: options.ignoreFilePaths,
+      listeners: {
+        file: function(root, fileStats, next) {
+          var fileExt = path.extname(fileStats.name),
+            needIgnore = false;
+
+          options.ignores.filter(function(val) {
+            if ('.' + val === fileExt) {
+              needIgnore = true;
+            }
+          });
+          if (needIgnore) {
+            return;
+          }
+
+          fileCount++;
+          flowStream(path.resolve(root, fileStats.name));
+          next();
+        },
+        errors: function(root, nodeStatsArray, next) {
+          console.log('error', nodeStatsArray);
+          next();
+        }
+      }
+    });
+  });
+
   // 遍历搜索文件 进行模糊匹配
-  (function flowStream(filePath) {
+  function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
     var ly = new Lazy(fs.createReadStream(filePath));
     var index = 0;
+
     ly.lines.forEach(function(bf) {
       // 空文件处理
-      if(!bf) { return; }
+      if (!bf) {
+        return;
+      }
 
       debug('file path %s, encoding %s', filePath, encoding);
       var line;
-      if(encoding === 'UTF-32LE') {
+      if (encoding === 'UTF-32LE') {
         line = bf.toString();
       } else {
         line = iconv.decode(bf, encoding);
@@ -83,7 +78,7 @@ module.exports = function(options, cb) {
 
       index++;
       options.findKeys.forEach(function(findKeyword) {
-        if(line.indexOf(findKeyword) !== -1) {
+        if (line.indexOf(findKeyword) !== -1) {
           findWords[findKeyword].push({
             path: filePath.substr(cwdPath.length + 1),
             index: index,
@@ -92,11 +87,10 @@ module.exports = function(options, cb) {
         }
       });
     }).join(function() {
-      if(!filesPath.length) {
+      fileCount--;
+      if(!fileCount) {
         cb(null, findWords);
-      } else {
-        flowStream(filesPath.pop());
       }
     });
-  })(filesPath.pop());
+  }
 };
