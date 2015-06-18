@@ -12,6 +12,7 @@ var debug = require('debug')('nff');
 module.exports = function(options, cb) {
   var cwdPath = options.cwdPath,
     findWords = {},
+    errorMap = [],
     fileCount = 0;
 
   // 搜索目录默认为当前目录
@@ -52,7 +53,6 @@ module.exports = function(options, cb) {
     });
   });
 
-  var errorMap = [];
   // 遍历搜索文件 进行模糊匹配
   function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
@@ -89,7 +89,7 @@ module.exports = function(options, cb) {
     }).join(function() {
       fileCount--;
       if(!fileCount) {
-        cb(null, findWords);
+        cb(errorMap, findWords);
       }
     });
   }
