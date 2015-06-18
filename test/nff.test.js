@@ -3,9 +3,10 @@
 describe('nff', function() {
   var cwd = process.cwd();
   var nff = require('..');
+
   it('cli output result', function(done) {
     var coffee = require('coffee');
-    coffee.spawn(cwd + '/bin/nff', ['-f', 'http'], { cwd: cwd + '/test/fixtures' })
+    coffee.spawn(cwd + '/bin/nff', ['-f', 'http'], {cwd: cwd + '/test/fixtures'})
       .expect('stdout', /http/)
       .expect('stdout', /index.js\:3/)
       .expect('code', 0)
