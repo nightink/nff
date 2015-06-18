@@ -36,11 +36,11 @@ module.exports = function(options, cb) {
             needIgnore = false;
 
           options.ignores.filter(function(val) {
-            if ('.' + val === fileExt) {
+            if('.' + val === fileExt) {
               needIgnore = true;
             }
           });
-          if (needIgnore) {
+          if(needIgnore) {
             return;
           }
 
@@ -64,13 +64,13 @@ module.exports = function(options, cb) {
 
     ly.lines.forEach(function(bf) {
       // 空文件处理
-      if (!bf) {
+      if(!bf) {
         return;
       }
 
       debug('file path %s, encoding %s', filePath, encoding);
       var line;
-      if (encoding === 'UTF-32LE') {
+      if('UTF-32LE' === encoding) {
         line = bf.toString();
       } else {
         line = iconv.decode(bf, encoding);
@@ -78,7 +78,7 @@ module.exports = function(options, cb) {
 
       index++;
       options.findKeys.forEach(function(findKeyword) {
-        if (line.indexOf(findKeyword) !== -1) {
+        if(line.indexOf(findKeyword) !== -1) {
           findWords[findKeyword].push({
             path: filePath.substr(cwdPath.length + 1),
             index: index,
