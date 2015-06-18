@@ -16,9 +16,11 @@ module.exports = function(options, cb) {
 
   // 搜索目录默认为当前目录
   if(!options.wherePaths) {
-    options.wherePaths = [cwdPath]
+    options.wherePaths = [cwdPath];
   }
-
+  if(!options.ignores) {
+    options.ignores = [];
+  }
   options.findKeys.forEach(function(findKeyword) {
     findWords[findKeyword] = [];
   });
