@@ -47,10 +47,6 @@ module.exports = function(options, cb) {
           fileCount++;
           flowStream(path.resolve(root, fileStats.name));
           next();
-        },
-        errors: function(root, nodeStatsArray, next) {
-          console.log('error', nodeStatsArray);
-          next();
         }
       }
     });
