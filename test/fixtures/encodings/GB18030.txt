@@ -1,0 +1,4 @@
+##全站公告位
+<header id="esc-header" class="fn-clear">
+	<div id="esc-welcome">欢迎来到担保交易！</div>
+</header>

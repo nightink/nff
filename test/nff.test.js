@@ -23,4 +23,28 @@ describe('nff', function() {
       done();
     });
   });
+
+  it('need ignore files', function(done) {
+    nff({
+      findKeys: ['http'],
+      cwdPath: cwd + '/test/fixtures',
+      ignoreFilePaths: ['.svn', '.git'],
+      ignores: ['txt']
+    }, function(err, data) {
+      data.should.have.property('http').with.lengthOf(2);
+      done();
+    });
+  });
+
+  it('find different encoding files', function(done) {
+    nff({
+      findKeys: ['header'],
+      cwdPath: cwd + '/test/fixtures',
+      ignoreFilePaths: ['.svn', '.git']
+    }, function(err, data) {
+      data.should.have.property('header').with.lengthOf(2);
+      done();
+    });
+
+  });
 });
