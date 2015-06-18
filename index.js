@@ -35,12 +35,14 @@ module.exports = function(options, cb) {
           var fileExt = path.extname(fileStats.name),
             needIgnore = false;
 
-          options.ignores.filter(function(val, index) {
+          options.ignores.filter(function(val) {
             if ('.' + val === fileExt) {
               needIgnore = true;
             }
           });
-          if (needIgnore) return;
+          if (needIgnore) {
+            return;
+          }
 
           fileCount++;
           flowStream(path.resolve(root, fileStats.name));
@@ -55,7 +57,7 @@ module.exports = function(options, cb) {
   });
 
   // 遍历搜索文件 进行模糊匹配
-  function flowStream(filePath, next) {
+  function flowStream(filePath) {
     var encoding = chardet.detectFileSync(filePath);
     var ly = new Lazy(fs.createReadStream(filePath));
     var index = 0;
