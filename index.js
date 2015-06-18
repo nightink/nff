@@ -13,6 +13,12 @@ module.exports = function(options, cb) {
   var cwdPath = options.cwdPath,
     findWords = {},
     fileCount = 0;
+
+  // 搜索目录默认为当前目录
+  if(!options.wherePaths) {
+    options.wherePaths = [cwdPath]
+  }
+
   options.findKeys.forEach(function(findKeyword) {
     findWords[findKeyword] = [];
   });
