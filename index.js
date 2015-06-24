@@ -12,6 +12,7 @@ var debug = require('debug')('nff');
 module.exports = function(options, cb) {
   var cwdPath = options.cwdPath,
     findWords = {},
+    errorMap = [],
     fileCount = 0;
 
   // 搜索目录默认为当前目录
@@ -65,27 +66,30 @@ module.exports = function(options, cb) {
       }
 
       debug('file path %s, encoding %s', filePath, encoding);
-      var line;
-      if('UTF-32LE' === encoding) {
-        line = bf.toString();
-      } else {
-        line = iconv.decode(bf, encoding);
-      }
 
       index++;
-      options.findKeys.forEach(function(findKeyword) {
-        if(line.indexOf(findKeyword) !== -1) {
-          findWords[findKeyword].push({
-            path: filePath.substr(cwdPath.length + 1),
-            index: index,
-            line: line
-          });
-        }
-      });
+      try {
+        var line = iconv.decode(bf, encoding);
+        options.findKeys.forEach(function(findKeyword) {
+          if(line.indexOf(findKeyword) !== -1) {
+            findWords[findKeyword].push({
+              path: filePath.substr(cwdPath.length + 1),
+              index: index,
+              line: line
+            });
+          }
+        });
+      } catch(e) {
+        errorMap.push({
+          path: filePath.substr(cwdPath.length + 1),
+          index: index,
+          error: e
+        });
+      }
     }).join(function() {
       fileCount--;
       if(!fileCount) {
-        cb(null, findWords);
+        cb(errorMap, findWords);
       }
     });
   }

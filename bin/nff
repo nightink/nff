@@ -62,7 +62,6 @@ console.log('\n\n========== node.js find {%s} list ==========\n\n', options.find
 
 require('..')(options, function(err, findWords) {
   var findKeys = Object.keys(findWords);
-
   debug(findKeys);
   if(!findKeys || findKeys.length === 0) {
     return;
@@ -81,4 +80,11 @@ require('..')(options, function(err, findWords) {
 
     console.log('\n');
   });
+
+  if(err && err.length) {
+    err.forEach(function(o) {
+      console.log('  * '.red + format('%s:%s', o.path, o.index).red +
+        ' ' + o.error);
+    });
+  }
 });

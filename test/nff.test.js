@@ -45,6 +45,16 @@ describe('nff', function() {
       data.should.have.property('header').with.lengthOf(2);
       done();
     });
+  });
 
+  it('fixed issue#3', function(done) {
+    nff({
+      findKeys: ['http'],
+      cwdPath: cwd + '/test/fixtures',
+      ignoreFilePaths: ['.svn', '.git']
+    }, function(err) {
+      err.should.be.instanceof(Array).and.have.lengthOf(1);
+      done();
+    });
   });
 });
